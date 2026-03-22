@@ -9,7 +9,333 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style2.css">
+    <style>
+      /* ── Tab switcher ── */
+      .tabs {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+        margin-bottom: 16px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 4px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        padding: 9px 12px;
+        border-radius: 10px;
+        border: none;
+        background: transparent;
+        color: rgba(255,255,255,0.4);
+        font-family: 'Syne', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+      }
+
+      .tab-btn svg { flex-shrink: 0; }
+
+      .tab-btn.active {
+        background: rgba(127,255,176,0.12);
+        color: #7fffb0;
+        border: 1px solid rgba(127,255,176,0.2);
+      }
+
+      .tab-btn:not(.active):hover {
+        background: rgba(255,255,255,0.06);
+        color: rgba(255,255,255,0.7);
+      }
+
+      /* ── Tab panels ── */
+      .tab-panel { display: none; width: 100%; }
+      .tab-panel.active { display: flex; flex-direction: column; gap: 10px; }
+
+      /* ── Contact form ── */
+      .cf-wrap {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 12px;
+      }
+
+      .cf-trigger {
+        width: 54px;
+        height: 54px;
+        border-radius: 16px;
+        background: rgba(8,12,8,0.75);
+        border: 1px solid rgba(127,255,176,0.35);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 22px rgba(127,255,176,0.1);
+        color: #7fffb0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+        flex-shrink: 0;
+      }
+
+      .cf-trigger:hover {
+        transform: translateY(-2px);
+        border-color: rgba(127,255,176,0.6);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.55), 0 0 30px rgba(127,255,176,0.18);
+      }
+
+      .cf-icon-mail, .cf-icon-close {
+        position: absolute;
+        transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+      }
+
+      .cf-icon-close { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+      .cf-wrap.open .cf-icon-mail { opacity: 0; transform: rotate(90deg) scale(0.6); }
+      .cf-wrap.open .cf-icon-close { opacity: 1; transform: rotate(0deg) scale(1); }
+
+      .cf-panel {
+        width: 320px;
+        background: rgba(7,11,7,0.92);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 22px;
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
+        box-shadow: 0 28px 70px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.06);
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(12px) scale(0.96);
+        transform-origin: bottom right;
+        pointer-events: none;
+        transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34,1.2,0.64,1);
+        display: none;
+      }
+
+      .cf-panel::before {
+        content: '';
+        display: block;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(127,255,176,0.45), transparent);
+      }
+
+      .cf-inner { padding: 18px; }
+
+      .cf-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .cf-head-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: rgba(127,255,176,0.1);
+        border: 1px solid rgba(127,255,176,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #7fffb0;
+        flex-shrink: 0;
+      }
+
+      .cf-head h3 {
+        font-family: 'Syne', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 2px;
+      }
+
+      .cf-head p {
+        font-size: 11px;
+        color: rgba(255,255,255,0.35);
+        margin: 0;
+        font-weight: 300;
+      }
+
+      .cf-screen { display: none; }
+      .cf-screen.active { display: block; }
+
+      .cf-fields { display: flex; flex-direction: column; gap: 7px; }
+
+      .cf-row2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+      }
+
+      .cf-field { display: flex; flex-direction: column; gap: 3px; }
+
+      .cf-input {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 9px;
+        color: #fff;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        padding: 9px 11px;
+        outline: none;
+        width: 100%;
+        transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+      }
+
+      .cf-input::placeholder { color: rgba(255,255,255,0.22); }
+
+      .cf-input:focus {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(127,255,176,0.5);
+        box-shadow: 0 0 0 3px rgba(127,255,176,0.08);
+      }
+
+      .cf-input.err {
+        border-color: rgba(255,75,75,0.6);
+        box-shadow: 0 0 0 3px rgba(255,75,75,0.07);
+      }
+
+      textarea.cf-input { resize: none; min-height: 72px; line-height: 1.5; }
+
+      .cf-err-msg {
+        font-size: 10px;
+        color: rgba(255,100,100,0.9);
+        font-weight: 500;
+        display: none;
+        padding-left: 2px;
+      }
+
+      .cf-err-msg.show { display: block; }
+
+      .cf-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        width: 100%;
+        padding: 10px 16px;
+        border-radius: 9px;
+        background: linear-gradient(135deg, rgba(127,255,176,0.15), rgba(0,196,255,0.1));
+        border: 1px solid rgba(127,255,176,0.35);
+        color: #7fffb0;
+        font-family: 'Syne', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        margin-top: 4px;
+        transition: background 0.2s, border-color 0.2s, transform 0.18s, box-shadow 0.2s;
+        box-sizing: border-box;
+      }
+
+      .cf-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, rgba(127,255,176,0.25), rgba(0,196,255,0.18));
+        border-color: rgba(127,255,176,0.6);
+        box-shadow: 0 4px 20px rgba(127,255,176,0.15);
+        transform: translateY(-1px);
+      }
+
+      .cf-btn:disabled { opacity: 0.55; cursor: default; }
+
+      .cf-spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(127,255,176,0.2);
+        border-top-color: #7fffb0;
+        border-radius: 50%;
+        animation: cfspin 0.7s linear infinite;
+        display: none;
+        flex-shrink: 0;
+      }
+
+      .cf-btn.loading .cf-btn-label { opacity: 0.5; }
+      .cf-btn.loading .cf-spinner   { display: block; }
+      .cf-btn.loading .cf-arrow     { display: none; }
+
+      @keyframes cfspin { to { transform: rotate(360deg); } }
+
+      .cf-result {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 10px;
+        padding: 8px 8px 4px;
+      }
+
+      .cf-result-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .cf-result-icon.success {
+        background: rgba(127,255,176,0.12);
+        border: 1px solid rgba(127,255,176,0.3);
+        color: #7fffb0;
+      }
+
+      .cf-result-icon.error {
+        background: rgba(255,80,80,0.1);
+        border: 1px solid rgba(255,80,80,0.3);
+        color: #ff6060;
+      }
+
+      .cf-result h3 {
+        font-family: 'Syne', sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+      }
+
+      .cf-result p {
+        font-size: 12px;
+        color: rgba(255,255,255,0.4);
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      .cf-again {
+        margin-top: 4px;
+        padding: 7px 18px;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: rgba(255,255,255,0.6);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s, border-color 0.2s;
+      }
+
+      .cf-again:hover {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        border-color: rgba(255,255,255,0.22);
+      }
+
+      @media (max-width: 480px) {
+        .cf-wrap  { bottom: 18px; right: 16px; }
+        .cf-panel { width: calc(100vw - 32px); }
+        .cf-row2  { grid-template-columns: 1fr; }
+      }
+    </style>
 </head>
 <body>
 
@@ -21,7 +347,6 @@
 
   <div class="page-wrapper">
 
-    <!-- Top bar -->
     <header class="topbar">
       <div class="topbar-left">
         <span class="topbar-tag">Portfolio</span>
@@ -35,20 +360,30 @@
       </button>
     </header>
 
-    <!-- Hero section -->
     <main class="hero">
       <div class="avatar-wrap">
         <div class="avatar-ring"></div>
         <img class="avatar" src="Main.png" alt="Vortx">
         <div class="avatar-glow"></div>
       </div>
-
       <h1 class="handle">Vortx</h1>
       <p class="tagline">Sometimes I code for fun 😉</p>
     </main>
 
-    <!-- Links -->
-    <nav class="links">
+    <!-- Tab switcher -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="links">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        Socials
+      </button>
+      <button class="tab-btn" data-tab="projects">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Project Showcase
+      </button>
+    </div>
+
+    <!-- Tab: Links -->
+    <div class="tab-panel active" id="tab-links">
 
       <a href="https://www.facebook.com/subhankarkundu43" target="_blank" class="link-card" data-platform="facebook">
         <div class="link-icon">
@@ -60,7 +395,7 @@
         </div>
       </a>
 
-      <a href="https://www.instagram.com/vortx_43" target="_blank" class="link-card" data-platform="instagram">
+      <a href="https://www.instagram.com/subhankarkundu43" target="_blank" class="link-card" data-platform="instagram">
         <div class="link-icon">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
         </div>
@@ -80,28 +415,318 @@
         </div>
       </a>
 
-      <a href="secondpage.html" class="link-card link-card--featured" data-platform="projects">
-        <div class="link-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    </div>
+
+    <!-- Tab: Projects -->
+    <div class="tab-panel" id="tab-projects">
+
+      <a href="https://vortexography.netlify.app" target="_blank" class="link-card" data-platform="stegano">
+        <div class="link-icon link-icon--emoji">🤫</div>
+        <div class="link-text">
+          <span class="link-label">Steganography</span>
+          <span class="link-desc">Hide messages inside images</span>
         </div>
-        <span class="link-label">Projects Hub</span>
         <div class="link-arrow">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
         </div>
       </a>
-    </nav>
+
+      <a href="https://vortx-memer.netlify.app" target="_blank" class="link-card" data-platform="memer">
+        <div class="link-icon link-icon--emoji">😂</div>
+        <div class="link-text">
+          <span class="link-label">Vortx-Memer</span>
+          <span class="link-desc">Generate random memes from Reddit</span>
+        </div>
+        <div class="link-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </div>
+      </a>
+
+      <a href="https://vortx-qr.netlify.app" target="_blank" class="link-card" data-platform="qr">
+        <div class="link-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="5" height="5"/><rect x="16" y="3" width="5" height="5"/><rect x="3" y="16" width="5" height="5"/>
+            <path d="M21 16h-3v3M21 21h-3M16 16v5M12 3v3M12 8h3M12 12v3M12 16v3M8 12H3M12 12H9"/>
+          </svg>
+        </div>
+        <div class="link-text">
+          <span class="link-label">Vortx-QR</span>
+          <span class="link-desc">QR code generator</span>
+        </div>
+        <div class="link-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </div>
+      </a>
+
+      <a href="https://vortx-standup.netlify.app" target="_blank" class="link-card" data-platform="standup">
+        <div class="link-icon link-icon--emoji">🎤</div>
+        <div class="link-text">
+          <span class="link-label">Random Standups</span>
+          <span class="link-desc">Suggests random stand-up comedy videos</span>
+        </div>
+        <div class="link-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </div>
+      </a>
+
+      <a href="https://vortx-tmkoc.netlify.app" target="_blank" class="link-card" data-platform="tmkoc">
+        <div class="link-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>
+          </svg>
+        </div>
+        <div class="link-text">
+          <span class="link-label">Random TMKOC</span>
+          <span class="link-desc">Sugggests random episodes from Taarak Mehta</span>
+        </div>
+        <div class="link-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </div>
+      </a>
+
+    </div>
+
     <footer class="footer">
-    <p class="credit">
-        Made and redesigned with <span class="heart"></span>❤️ by 
-        <a href="https://www.instagram.com/vortx_43" target="_blank" rel="noreferrer" class="credit-name">Subhankar</a><span> © 2024 Vortx</span>    
-      </p>  
+      <p class="credit">
+        Made and redesigned with <span class="heart">❤️</span> by
+        <a href="https://www.instagram.com/vortx_43" target="_blank" rel="noreferrer" class="credit-name">Vortx</a>
+        <span> © 2024 Vortx</span>
+      </p>
     </footer>
 
   </div>
 
-  <!-- Toast notification -->
-  <div class="toast" id="toast">Link copied!</div>
+  <div class="toast" id="toast"></div>
 
-  <script src="script.js"></script>
+  <!-- ── Contact Form Widget ── -->
+  <div class="cf-wrap" id="cfWrap">
+    <button class="cf-trigger" id="cfTrigger" aria-label="Open contact form">
+      <svg class="cf-icon-mail" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="3"/><polyline points="2,4 12,13 22,4"/>
+      </svg>
+      <svg class="cf-icon-close" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <div class="cf-panel" id="cfPanel">
+      <div class="cf-inner">
+        <div class="cf-head">
+          <div class="cf-head-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="3"/><polyline points="2,4 12,13 22,4"/>
+            </svg>
+          </div>
+          <div>
+            <h3>Get in Touch</h3>
+            <p>I'll reply as soon as possible</p>
+          </div>
+        </div>
+
+        <div class="cf-screen active" id="screenForm">
+          <div class="cf-fields">
+            <div class="cf-row2">
+              <div class="cf-field">
+                <input class="cf-input" id="cf-name" type="text" placeholder="Your name" autocomplete="off">
+                <span class="cf-err-msg" id="err-name">Name is required</span>
+              </div>
+              <div class="cf-field">
+                <input class="cf-input" id="cf-email" type="email" placeholder="Email address" autocomplete="off">
+                <span class="cf-err-msg" id="err-email">Valid email required</span>
+              </div>
+            </div>
+            <div class="cf-row2">
+              <div class="cf-field">
+                <input class="cf-input" id="cf-phone" type="tel" placeholder="Phone number" autocomplete="off">
+                <span class="cf-err-msg" id="err-phone">Phone is required</span>
+              </div>
+              <div class="cf-field">
+                <input class="cf-input" id="cf-subject" type="text" placeholder="Subject" autocomplete="off">
+                <span class="cf-err-msg" id="err-subject">Subject is required</span>
+              </div>
+            </div>
+            <div class="cf-field">
+              <textarea class="cf-input" id="cf-message" placeholder="Your message..." rows="3"></textarea>
+              <span class="cf-err-msg" id="err-message">Message is required</span>
+            </div>
+            <button class="cf-btn" id="cfSubmit">
+              <span class="cf-btn-label">Send Message</span>
+              <span class="cf-spinner"></span>
+              <svg class="cf-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="cf-screen" id="screenSuccess">
+          <div class="cf-result">
+            <div class="cf-result-icon success">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3>Message Sent!</h3>
+            <p>Thanks for reaching out. I'll get back to you soon 🙌</p>
+            <button class="cf-again" id="btnAgainSuccess">Send another</button>
+          </div>
+        </div>
+
+        <div class="cf-screen" id="screenError">
+          <div class="cf-result">
+            <div class="cf-result-icon error">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <h3>Oops!</h3>
+            <p>Something went wrong. Try reaching me on social media instead.</p>
+            <button class="cf-again" id="btnAgainError">Try again</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="script2.js"></script>
+
+  <script>
+    // ── Tab switcher ──
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var tab = btn.getAttribute('data-tab');
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById('tab-' + tab).classList.add('active');
+      });
+    });
+
+    // ── Contact Form ──
+    (function () {
+      var WORKER_URL = 'https://vortx-contact.russiandekho.workers.dev'; // 🔁 Your worker URL
+
+      var wrap    = document.getElementById('cfWrap');
+      var trigger = document.getElementById('cfTrigger');
+      var panel   = document.getElementById('cfPanel');
+      var submit  = document.getElementById('cfSubmit');
+
+      function showScreen(id) {
+        ['screenForm','screenSuccess','screenError'].forEach(function(s) {
+          var el = document.getElementById(s);
+          if (el) el.className = 'cf-screen' + (s === id ? ' active' : '');
+        });
+      }
+
+      showScreen('screenForm');
+
+      var isOpen = false;
+
+      function openForm() {
+        isOpen = true;
+        wrap.classList.add('open');
+        panel.style.display = 'block';
+        setTimeout(function() {
+          panel.style.opacity = '1';
+          panel.style.transform = 'translateY(0) scale(1)';
+          panel.style.pointerEvents = 'all';
+        }, 10);
+      }
+
+      function closeForm() {
+        isOpen = false;
+        wrap.classList.remove('open');
+        panel.style.opacity = '0';
+        panel.style.transform = 'translateY(12px) scale(0.96)';
+        panel.style.pointerEvents = 'none';
+        setTimeout(function() { if (!isOpen) panel.style.display = 'none'; }, 260);
+      }
+
+      trigger.addEventListener('click', function(e) { e.stopPropagation(); isOpen ? closeForm() : openForm(); });
+      document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && isOpen) closeForm(); });
+      document.addEventListener('click', function(e) { if (isOpen && !wrap.contains(e.target)) closeForm(); });
+
+      var EMAIL_RE = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
+      var fields = [
+        { inputId: 'cf-name',    errId: 'err-name',    key: 'name',     check: function(v){ return v.trim() !== ''; } },
+        { inputId: 'cf-email',   errId: 'err-email',   key: 'email',    check: function(v){ return EMAIL_RE.test(v.trim()); } },
+        { inputId: 'cf-phone',   errId: 'err-phone',   key: 'phone_no', check: function(v){ return v.trim() !== ''; } },
+        { inputId: 'cf-subject', errId: 'err-subject', key: 'subject',  check: function(v){ return v.trim() !== ''; } },
+        { inputId: 'cf-message', errId: 'err-message', key: 'message',  check: function(v){ return v.trim() !== ''; } },
+      ];
+
+      fields.forEach(function(f) {
+        var el = document.getElementById(f.inputId);
+        if (el) el.addEventListener('input', function() {
+          el.classList.remove('err');
+          var e = document.getElementById(f.errId);
+          if (e) e.classList.remove('show');
+        });
+      });
+
+      function validate() {
+        var ok = true;
+        fields.forEach(function(f) {
+          var el  = document.getElementById(f.inputId);
+          var err = document.getElementById(f.errId);
+          if (!f.check(el ? el.value : '')) {
+            ok = false;
+            if (el)  el.classList.add('err');
+            if (err) err.classList.add('show');
+          }
+        });
+        return ok;
+      }
+
+      function resetForm() {
+        fields.forEach(function(f) {
+          var el  = document.getElementById(f.inputId);
+          var err = document.getElementById(f.errId);
+          if (el)  { el.value = ''; el.classList.remove('err'); }
+          if (err) err.classList.remove('show');
+        });
+        submit.classList.remove('loading');
+        submit.disabled = false;
+        showScreen('screenForm');
+      }
+
+      document.getElementById('btnAgainSuccess').addEventListener('click', resetForm);
+      document.getElementById('btnAgainError').addEventListener('click', resetForm);
+
+      submit.addEventListener('click', async function() {
+        if (!validate()) return;
+
+        submit.classList.add('loading');
+        submit.disabled = true;
+
+        var payload = {};
+        fields.forEach(function(f) {
+          var el  = document.getElementById(f.inputId);
+          var val = el ? el.value.trim() : '';
+          payload[f.key] = f.key === 'email' ? val.toLowerCase() : val;
+        });
+
+        try {
+          var res  = await fetch(WORKER_URL, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(payload)
+          });
+          var data = await res.json();
+          if (data.status === true) {
+            showScreen('screenSuccess');
+          } else {
+            console.warn('Worker error:', data.msg);
+            showScreen('screenError');
+          }
+        } catch (e) {
+          console.error('Fetch error:', e);
+          showScreen('screenError');
+        } finally {
+          submit.classList.remove('loading');
+          submit.disabled = false;
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -1,30 +1,33 @@
-// Vortx Portfolio — Script
+// Vortx Portfolio — script.js
 
-// ─── Share / Copy links ──────────────────────────────────
+// ─── Utility ─────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
 function showToast(msg) {
-  const toast = document.getElementById('toast');
+  const toast = $('toast');
   if (!toast) return;
-  toast.textContent = msg || 'Link copied!';
+  toast.textContent = msg;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2200);
 }
 
-// Arrow buttons on each card → copy card's href
+// ─── Share / Copy link arrows ─────────────────────────────
 document.querySelectorAll('.link-arrow').forEach(arrow => {
-  arrow.addEventListener('click', (e) => {
+  arrow.addEventListener('click', e => {
     e.preventDefault();
     e.stopPropagation();
     const card = arrow.closest('.link-card');
     const href = card?.getAttribute('href');
-    if (href) {
-      const fullUrl = href.startsWith('http') ? href : window.location.origin + '/' + href;
-      navigator.clipboard.writeText(fullUrl).then(() => showToast('Link copied!')).catch(() => showToast('Copy failed'));
-    }
+    if (!href) return;
+    const url = href.startsWith('http') ? href : window.location.origin + '/' + href;
+    navigator.clipboard.writeText(url)
+      .then(() => showToast('Link copied!'))
+      .catch(() => showToast('Copy failed'));
   });
 });
 
-// Share button → copy current page URL
-const shareBtn = document.getElementById('shareBtn');
+// ─── Share button (topbar) ────────────────────────────────
+const shareBtn = $('shareBtn');
 if (shareBtn) {
   shareBtn.addEventListener('click', () => {
     if (navigator.share) {

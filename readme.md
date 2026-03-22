@@ -34,9 +34,6 @@ project-folder/
 ## ❤️ Credits
 
 Made and redesigned with ❤️ by **Subhankar**
-
-© 2024 Vortx
-
 ---
 
 ## 📜 License
